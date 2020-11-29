@@ -14,7 +14,7 @@ const { response } = require("express")
 // Creates a client
 const datastore = new Datastore();
 
-app.post("/api/register", function(request, response){
+app.post("/api/register", async function(request, response){
     var contactArray = request.body.Contacts
     var count = contactArray.length
     console.log(request.headers['content-type'])
@@ -49,7 +49,7 @@ app.post("/api/register", function(request, response){
     response.send(request.body)
 })
 
-app.get("/api/punish", function(){
+app.get("/api/punish", async function(){
     const contact = await getRandomContact()
     const photo = getRandomPhoto()
 
