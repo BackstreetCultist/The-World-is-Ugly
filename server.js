@@ -51,7 +51,7 @@ app.post("/api/register", async function(request, response){
 
 app.get("/api/punish", async function(request, response){
     const contact = await getRandomContact()
-    const photo = getRandomPhoto()
+    const photo = await getRandomPhoto()
 
     console.log(contact)
     sendSMS(contact.Name, contact.Number, photo)
@@ -120,7 +120,9 @@ async function getRandomContact(){
 
 async function getRandomPhoto(){
     //TODO
-    return null
+    return new Promise((resolve, reject) => {
+        resolve("https://static01.nyt.com/images/2019/04/02/science/28SCI-ZIMMER1/28SCI-ZIMMER1-superJumbo.jpg")
+    })
 }
 
 function sendSMS(name, number, photo){
@@ -128,7 +130,7 @@ function sendSMS(name, number, photo){
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const client = require('twilio')(accountSid, authToken);
 
-    const messageString = "Hello, " + name + ", we think it's very important that you see this..."
+    const messageString = "Hello, " + name + ", we think it's very important that you see this... " + photo
 
     client.messages
     .create({
