@@ -61,14 +61,12 @@ app.get("/api/punish", async function(request, response){
     response.sendStatus(200)
 })
 
-app.post("/api/checkphoto", async function(request, response){ 
-    var image = request.body.image
-    var label = request.body.label.toLowerCase()
+app.get("/api/checkphoto", async function(request, response){ 
+    var imageLink = request.query.imageLink
+    var label = request.query.label.toLowerCase()
 
-    var base64Image = Buffer.from(image, 'base64')
-    const [result] = await client.labelDetection(base64Image)
+    const [result] = await client.labelDetection(imageLink)
     const labels = result.labelAnnotations
-    console.log(labels)
     var found = false
     labels.forEach(element => {
         if (element.description.toLowerCase() === label)
