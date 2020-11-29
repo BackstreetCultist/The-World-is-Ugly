@@ -9,15 +9,19 @@ const PORT = process.env['PORT'] || 8080
 const vision = require("@google-cloud/vision")
 const client = new vision.ImageAnnotatorClient()
 const {Datastore} = require('@google-cloud/datastore');
+const { response } = require("express")
 
 // Creates a client
 const datastore = new Datastore();
 
 app.post("/api/register", function(request, response){
+    var contactArray = request.body.Contacts
+    var count = contactArray.length
     console.log(request.headers['content-type'])
-    console.log(request.body.Contacts)
+    console.log(contactArray)
+    console.log(count)
 
-    request.body.Contacts.forEach(async function(contact){
+    contactArray.forEach(async function(contact){
         const nameKey = datastore.key("Contact");
         const task = {
             key: nameKey,
@@ -30,11 +34,28 @@ app.post("/api/register", function(request, response){
         console.log(`Saved ${task.key.name}: ${task.data.Number}`);
     })
 
+    //Post the number of added contacts to datastore
+        //so that a random one can be fetched later
+    const countKey = datastore.key(["Count", "Count"]);
+    const countTask = {
+        key: countKey,
+        data: {
+            Count: count,
+            },
+        };
+    await datastore.save(countTask);
+    console.log(`Saved ${countTask.key.name}: ${countTask.data.Number}`);
+
     response.send(request.body)
 })
 
 app.get("/api/punish", function(){
-    //TODO
+    const contact = await getRandomContact()
+    const photo = getRandomPhoto()
+
+    console.log(contact)
+    
+    response.send(request.body)
 })
 
 app.post("/api/checkphoto", async function(request, response){ 
