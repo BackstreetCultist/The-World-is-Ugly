@@ -49,13 +49,13 @@ app.post("/api/register", async function(request, response){
     response.send(request.body)
 })
 
-app.get("/api/punish", async function(){
+app.get("/api/punish", async function(request, response){
     const contact = await getRandomContact()
     const photo = getRandomPhoto()
 
     console.log(contact)
-    
-    response.send(request.body)
+    sendSMS(contact.Name, contact.Number, photo)
+    response.sendStatus(200)
 })
 
 app.post("/api/checkphoto", async function(request, response){ 
@@ -121,6 +121,22 @@ async function getRandomContact(){
 async function getRandomPhoto(){
     //TODO
     return null
+}
+
+function sendSMS(name, number, photo){
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const client = require('twilio')(accountSid, authToken);
+
+    const messageString = "Hello, " + name + ", we think it's very important that you see this..."
+
+    client.messages
+    .create({
+        body: messageString,
+        from: '+447449791403',
+        to: number
+    })
+    .then(message => console.log(message.sid));
 }
 
 app.listen(PORT, ()=>{console.log(`Server started on port ${PORT}`)})
