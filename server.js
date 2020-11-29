@@ -9,10 +9,12 @@ const PORT = process.env['PORT'] || 8080
 const vision = require("@google-cloud/vision")
 const client = new vision.ImageAnnotatorClient()
 const {Datastore} = require('@google-cloud/datastore');
+const {Storage} = require('@google-cloud/storage')
 const { response } = require("express")
 
 // Creates a client
 const datastore = new Datastore();
+const storage = new Storage()
 
 app.post("/api/register", async function(request, response){
     var contactArray = request.body.Contacts
@@ -54,6 +56,7 @@ app.get("/api/punish", async function(request, response){
     const photo = await getRandomPhoto()
 
     console.log(contact)
+    console.log(photo)
     sendSMS(contact.Name, contact.Number, photo)
     response.sendStatus(200)
 })
@@ -120,8 +123,18 @@ async function getRandomContact(){
 
 async function getRandomPhoto(){
     //TODO
-    return new Promise((resolve, reject) => {
-        resolve("https://static01.nyt.com/images/2019/04/02/science/28SCI-ZIMMER1/28SCI-ZIMMER1-superJumbo.jpg")
+    return new Promise(async (resolve, reject) => {
+        const BUCKET_NAME = "hostage-photos"
+        const [files] = await storage.bucket(BUCKET_NAME).getFiles()
+
+        const index = Math.floor(Math.random() * files.length)
+        const filename = files[index].name
+        console.log("Chosen file: ")
+        console.log(filename)
+
+        await storage.bucket(BUCKET_NAME).file(filename).makePublic()
+        const address = "http://" + BUCKET_NAME + ".storage.googleapis.com/" + filename
+        resolve(address)
     })
 }
 
