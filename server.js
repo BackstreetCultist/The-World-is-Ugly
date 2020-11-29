@@ -82,4 +82,45 @@ app.post("/api/checkphoto", async function(request, response){
     }
 })
 
+async function getRandomContact(){
+    const key = datastore.key(["Count", "Count"]);
+
+    const count = await new Promise((resolve, reject) => { 
+        datastore.get(key, (err, entity) => {
+        if (err){
+            reject(err)
+        }
+        resolve(entity.Count)
+        })
+    })
+
+    const index = Math.floor(Math.random() * count)
+
+    const query = datastore.createQuery('Contact');
+    
+    return new Promise((resolve, reject) => {
+        datastore
+            .runQuery(query)
+            .then(results => {
+            const contacts = results[0];
+            var i = 0
+            contacts.forEach(contact => {
+                if(i === index){
+                    resolve(contact)
+                }
+                i++
+            });
+            })
+            .catch(err => {
+            console.error('ERROR:', err)
+            reject(err)
+        });
+    })
+}
+
+async function getRandomPhoto(){
+    //TODO
+    return null
+}
+
 app.listen(PORT, ()=>{console.log(`Server started on port ${PORT}`)})
